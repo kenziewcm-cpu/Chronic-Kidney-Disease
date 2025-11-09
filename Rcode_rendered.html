@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Kenzie_lee">
+
+<title>chronic kidney disease</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Rcode_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Rcode_files/libs/quarto-html/quarto.js"></script>
+<script src="Rcode_files/libs/quarto-html/popper.min.js"></script>
+<script src="Rcode_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Rcode_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Rcode_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Rcode_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Rcode_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Rcode_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Rcode_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">chronic kidney disease</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Kenzie_lee </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="chronic-kidney-disease-dataset-analysis" class="level1">
+<h1>chronic kidney disease dataset analysis</h1>
+<section id="data-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation">data preparation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>file_path <span class="ot">&lt;-</span> <span class="st">'/Users/apple/Desktop/me/WCM/semester/fall1/biosta1/final/kidney_disease.csv'</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(file_path)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#str(df)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Patient.ID Age.of.the.patient Blood.Pressure Specific.Gravity..urine.
+1       id,k                age             bp                       sg
+2          0                 48             80                     1.02
+3          1                  7             50                     1.02
+4          2                 62             80                     1.01
+5          3                 48             70                    1.005
+6          4                 51             80                     1.01
+  Albumin.in.urine Sugar.in.urine Red.Blood.Cells.in.urine Pus.Cells.in.urine
+1               al             su                      rbc                 pc
+2                1              0                                      normal
+3                4              0                                      normal
+4                2              3                   normal             normal
+5                4              0                   normal           abnormal
+6                2              0                   normal             normal
+  Pus.Cell.Clumps Bacteria.in.urine Blood.Glucose.Random Blood.Urea
+1             pcc                ba                  bgr         bu
+2      notpresent        notpresent                  121         36
+3      notpresent        notpresent                              18
+4      notpresent        notpresent                  423         53
+5         present        notpresent                  117         56
+6      notpresent        notpresent                  106         26
+  Serum.Creatinine Sodium.in.blood Potassium.in.blood Hemoglobin.level
+1               sc             sod                pot             hemo
+2              1.2                                                15.4
+3              0.8                                                11.3
+4              1.8                                                 9.6
+5              3.8             111                2.5             11.2
+6              1.4                                                11.6
+  Packed.Cell.Volume..Hematocrit. White.Blood.Cell.Count Red.Blood.Cell.Count
+1                             pcv                     wc                   rc
+2                              44                   7800                  5.2
+3                              38                   6000                     
+4                              31                   7500                     
+5                              32                   6700                  3.9
+6                              35                   7300                  4.6
+  Hypertension Diabetes.Mellitus Coronary.Artery.Disease Appetite
+1          htn                dm                     cad    appet
+2          yes               yes                      no     good
+3           no                no                      no     good
+4           no               yes                      no     poor
+5          yes                no                      no     poor
+6           no                no                      no     good
+  Pedal.Edema..swelling.of.legs. Anemia Diagnosis.label
+1                             pe    ane  classification
+2                             no     no             ckd
+3                             no     no             ckd
+4                             no    yes             ckd
+5                            yes    yes             ckd
+6                             no     no             ckd</code></pre>
+</div>
+</div>
+<p>First check duplicated rows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check duplicated rows</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">duplicated</span>(df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#df[duplicated(df),]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Delete extra columns, such as the ID column. Classify the numerical and categorical data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">subset</span>(df, <span class="at">select =</span> <span class="sc">-</span>Patient.ID)<span class="co">#please run this for one first time</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#df &lt;- df[, !names(df) %in% c("id")]</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#str(df)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#colnames(df)</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#name the numerical and categorical data</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>num_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Age.of.the.patient"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Blood.Pressure"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Specific.Gravity..urine."</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Blood.Glucose.Random"</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Blood.Urea"</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Serum.Creatinine"</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Sodium.in.blood"</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Potassium.in.blood"</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Hemoglobin.level"</span>,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Packed.Cell.Volume..Hematocrit."</span>,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"White.Blood.Cell.Count"</span>,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Red.Blood.Cell.Count"</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>df[num_cols] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df[num_cols], <span class="cf">function</span>(x) <span class="fu">as.numeric</span>(x))</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   401 obs. of  25 variables:
+ $ Age.of.the.patient             : num  NA 48 7 62 48 51 60 68 24 52 ...
+ $ Blood.Pressure                 : num  NA 80 50 80 70 80 90 70 NA 100 ...
+ $ Specific.Gravity..urine.       : num  NA 1.02 1.02 1.01 1 ...
+ $ Albumin.in.urine               : chr  "al" "1" "4" "2" ...
+ $ Sugar.in.urine                 : chr  "su" "0" "0" "3" ...
+ $ Red.Blood.Cells.in.urine       : chr  "rbc" "" "" "normal" ...
+ $ Pus.Cells.in.urine             : chr  "pc" "normal" "normal" "normal" ...
+ $ Pus.Cell.Clumps                : chr  "pcc" "notpresent" "notpresent" "notpresent" ...
+ $ Bacteria.in.urine              : chr  "ba" "notpresent" "notpresent" "notpresent" ...
+ $ Blood.Glucose.Random           : num  NA 121 NA 423 117 106 74 100 410 138 ...
+ $ Blood.Urea                     : num  NA 36 18 53 56 26 25 54 31 60 ...
+ $ Serum.Creatinine               : num  NA 1.2 0.8 1.8 3.8 1.4 1.1 24 1.1 1.9 ...
+ $ Sodium.in.blood                : num  NA NA NA NA 111 NA 142 104 NA NA ...
+ $ Potassium.in.blood             : num  NA NA NA NA 2.5 NA 3.2 4 NA NA ...
+ $ Hemoglobin.level               : num  NA 15.4 11.3 9.6 11.2 11.6 12.2 12.4 12.4 10.8 ...
+ $ Packed.Cell.Volume..Hematocrit.: num  NA 44 38 31 32 35 39 36 44 33 ...
+ $ White.Blood.Cell.Count         : num  NA 7800 6000 7500 6700 7300 7800 NA 6900 9600 ...
+ $ Red.Blood.Cell.Count           : num  NA 5.2 NA NA 3.9 4.6 4.4 NA 5 4 ...
+ $ Hypertension                   : chr  "htn" "yes" "no" "no" ...
+ $ Diabetes.Mellitus              : chr  "dm" "yes" "no" "yes" ...
+ $ Coronary.Artery.Disease        : chr  "cad" "no" "no" "no" ...
+ $ Appetite                       : chr  "appet" "good" "good" "poor" ...
+ $ Pedal.Edema..swelling.of.legs. : chr  "pe" "no" "no" "no" ...
+ $ Anemia                         : chr  "ane" "no" "no" "yes" ...
+ $ Diagnosis.label                : chr  "classification" "ckd" "ckd" "ckd" ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cat_cols <span class="ot">&lt;-</span> <span class="fu">names</span>(df)[<span class="fu">sapply</span>(df, is.character) <span class="sc">|</span> <span class="fu">sapply</span>(df, is.factor)]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#num_col &lt;- names(df)[!(sapply(df, is.character) | sapply(df, is.factor))]</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>cat_cols</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Albumin.in.urine"               "Sugar.in.urine"                
+ [3] "Red.Blood.Cells.in.urine"       "Pus.Cells.in.urine"            
+ [5] "Pus.Cell.Clumps"                "Bacteria.in.urine"             
+ [7] "Hypertension"                   "Diabetes.Mellitus"             
+ [9] "Coronary.Artery.Disease"        "Appetite"                      
+[11] "Pedal.Edema..swelling.of.legs." "Anemia"                        
+[13] "Diagnosis.label"               </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#num_col</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#summary(df)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Deal with “tab”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df[<span class="sc">-</span><span class="dv">1</span>,]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#delete the first row:  df &lt;- df[-1, ]</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#delete the first two rows: df &lt;- df[-c(1,2), ]</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#delete the i th row:   df &lt;- df[-i, ]</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#remain 2 to all rows   df &lt;- df[2:nrow(df), ]</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#head(df)</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span><span class="st">`</span><span class="at">Diabetes.Mellitus</span><span class="st">`</span> <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\\t</span><span class="st">no"</span>, <span class="st">"no"</span>, df<span class="sc">$</span><span class="st">`</span><span class="at">Diabetes.Mellitus</span><span class="st">`</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span><span class="st">`</span><span class="at">Diabetes.Mellitus</span><span class="st">`</span> <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\\t</span><span class="st">yes"</span>, <span class="st">"yes"</span>, df<span class="sc">$</span><span class="st">`</span><span class="at">Diabetes.Mellitus</span><span class="st">`</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span><span class="st">`</span><span class="at">Coronary.Artery.Disease</span><span class="st">`</span> <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\\t</span><span class="st">no"</span>, <span class="st">"no"</span>, df<span class="sc">$</span><span class="st">`</span><span class="at">Coronary.Artery.Disease</span><span class="st">`</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span><span class="st">`</span><span class="at">Coronary.Artery.Disease</span><span class="st">`</span> <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\\t</span><span class="st">yes"</span>, <span class="st">"yes"</span>, df<span class="sc">$</span><span class="st">`</span><span class="at">Coronary.Artery.Disease</span><span class="st">`</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Diagnosis.label  <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"ckd</span><span class="sc">\\\t</span><span class="st">"</span>, <span class="st">"ckd"</span>, df<span class="sc">$</span>Diagnosis.label )</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#summary(df)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Deal with NAs.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Age.of.the.patient                  Blood.Pressure 
+                              9                              12 
+       Specific.Gravity..urine.                Albumin.in.urine 
+                             47                               0 
+                 Sugar.in.urine        Red.Blood.Cells.in.urine 
+                              0                               0 
+             Pus.Cells.in.urine                 Pus.Cell.Clumps 
+                              0                               0 
+              Bacteria.in.urine            Blood.Glucose.Random 
+                              0                              44 
+                     Blood.Urea                Serum.Creatinine 
+                             19                              17 
+                Sodium.in.blood              Potassium.in.blood 
+                             87                              88 
+               Hemoglobin.level Packed.Cell.Volume..Hematocrit. 
+                             52                              71 
+         White.Blood.Cell.Count            Red.Blood.Cell.Count 
+                            106                             131 
+                   Hypertension               Diabetes.Mellitus 
+                              0                               0 
+        Coronary.Artery.Disease                        Appetite 
+                              0                               0 
+ Pedal.Edema..swelling.of.legs.                          Anemia 
+                              0                               0 
+                Diagnosis.label 
+                              0 </code></pre>
+</div>
+</div>
+<p>Missing value imputation methods:</p>
+<ol type="1">
+<li><p>For numerical variables (e.g., age, blood pressure, blood sugar): Randomly select some values from the known non-missing values of the column and replace the missing values. • If the mean or median is used for imputation, all missing values will be replaced with the same number, which will reduce the variance of the variable and cause the data to be “oversmoothed”. Random imputation allows the imputed values to maintain the true distribution characteristics of the data (e.g., the probability that people with high blood sugar will take higher values and people with low blood sugar will take lower values is still preserved). After this processing, the model training will not lose information diversity due to a large number of identical values.</p></li>
+<li><p>For categorical variables: We replace missing values with the value that appears most frequently (mode). These variables have no continuous relationship (they cannot be averaged or randomly selected), and mode imputation is the most natural choice because it preserves the main distribution of the data; it does not introduce invalid categories; and it has the least impact on model bias.</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#random -- NA--numeric</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>Random_value_Imputation <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">seed=</span><span class="dv">42</span>) {</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  na_index <span class="ot">&lt;-</span> <span class="fu">is.na</span>(x)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  x[na_index] <span class="ot">&lt;-</span> <span class="fu">sample</span>(x[<span class="sc">!</span>na_index], <span class="fu">sum</span>(na_index), <span class="at">replace=</span><span class="cn">TRUE</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(x)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>}<span class="co"># "Albumin.in.urine"                "Sugar.in.urine" </span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#mode -- NA--cate</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>impute_mode <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">seed=</span><span class="dv">42</span>) {</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  mode_val <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">sort</span>(<span class="fu">table</span>(x), <span class="at">decreasing =</span> <span class="cn">TRUE</span>))[<span class="dv">1</span>]</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> mode_val</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(x)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#num_cols</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#cat_cols</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col <span class="cf">in</span> num_cols) {</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  df[[col]] <span class="ot">&lt;-</span> <span class="fu">Random_value_Imputation</span>(df[[col]], <span class="at">seed=</span><span class="dv">203</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col <span class="cf">in</span> cat_cols) {</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  df[[col]] <span class="ot">&lt;-</span> <span class="fu">impute_mode</span>(df[[col]], <span class="at">seed=</span><span class="dv">203</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="draw-a-heatmap." class="level4">
+<h4 class="anchored" data-anchor-id="draw-a-heatmap.">Draw a heatmap.</h4>
+<p>Drawing a correlation plot is essential: If a high correlation is found (|r| &gt; 0.8), it is recommended to remove one of the variables; If there are many variables, run vif() first and then delete them; Variable selection is best done after cleaning and before modeling; If you want to predict (rather than explain), you can use penalized regression for automatic selection.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>num_data <span class="ot">&lt;-</span> df[, num_cols]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#make sure it's all numeric</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>num_data <span class="ot">&lt;-</span> <span class="fu">mutate_all</span>(num_data, <span class="cf">function</span>(x) <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(x)))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#complete.obs omits NA</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(num_data, <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#turn it into matrix</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>corr_melt <span class="ot">&lt;-</span> <span class="fu">melt</span>(corr_matrix)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(corr_melt, <span class="fu">aes</span>(<span class="at">x =</span> Var1, <span class="at">y =</span> Var2, <span class="at">fill =</span> value)) <span class="sc">+</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"#2E86AB"</span>, <span class="at">mid =</span> <span class="st">"white"</span>, <span class="at">high =</span> <span class="st">"#E74C3C"</span>,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="dv">0</span>, <span class="at">limit =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">name =</span> <span class="st">"Correlation"</span>) <span class="sc">+</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust =</span> <span class="dv">1</span>),</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, value)), <span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Correlation Heatmap of Numeric Variables"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rcode_files/figure-html/testcorrelation-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="perform-label-encoding-for-categorical-variables" class="level4">
+<h4 class="anchored" data-anchor-id="perform-label-encoding-for-categorical-variables">Perform label encoding for categorical variables</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Age.of.the.patient Blood.Pressure   Specific.Gravity..urine.
+ Min.   : 2.00      Min.   : 50.00   Min.   :1.005           
+ 1st Qu.:42.00      1st Qu.: 70.00   1st Qu.:1.010           
+ Median :54.00      Median : 80.00   Median :1.020           
+ Mean   :51.56      Mean   : 76.53   Mean   :1.017           
+ 3rd Qu.:64.25      3rd Qu.: 80.00   3rd Qu.:1.020           
+ Max.   :90.00      Max.   :180.00   Max.   :1.025           
+ Albumin.in.urine   Sugar.in.urine     Red.Blood.Cells.in.urine
+ Length:400         Length:400         Length:400              
+ Class :character   Class :character   Class :character        
+ Mode  :character   Mode  :character   Mode  :character        
+                                                               
+                                                               
+                                                               
+ Pus.Cells.in.urine Pus.Cell.Clumps    Bacteria.in.urine  Blood.Glucose.Random
+ Length:400         Length:400         Length:400         Min.   : 22.0       
+ Class :character   Class :character   Class :character   1st Qu.:100.0       
+ Mode  :character   Mode  :character   Mode  :character   Median :122.0       
+                                                          Mean   :149.9       
+                                                          3rd Qu.:169.0       
+                                                          Max.   :490.0       
+   Blood.Urea     Serum.Creatinine Sodium.in.blood Potassium.in.blood
+ Min.   :  1.50   Min.   : 0.400   Min.   :  4.5   Min.   : 2.500    
+ 1st Qu.: 27.00   1st Qu.: 0.900   1st Qu.:135.0   1st Qu.: 3.800    
+ Median : 44.00   Median : 1.300   Median :138.0   Median : 4.400    
+ Mean   : 58.65   Mean   : 3.100   Mean   :137.6   Mean   : 4.774    
+ 3rd Qu.: 68.00   3rd Qu.: 2.825   3rd Qu.:142.0   3rd Qu.: 4.900    
+ Max.   :391.00   Max.   :76.000   Max.   :163.0   Max.   :47.000    
+ Hemoglobin.level Packed.Cell.Volume..Hematocrit. White.Blood.Cell.Count
+ Min.   : 3.10    Min.   : 9.00                   Min.   : 2200         
+ 1st Qu.:10.30    1st Qu.:32.75                   1st Qu.: 6400         
+ Median :12.60    Median :40.00                   Median : 8000         
+ Mean   :12.47    Mean   :38.92                   Mean   : 8357         
+ 3rd Qu.:15.00    3rd Qu.:45.00                   3rd Qu.: 9800         
+ Max.   :17.80    Max.   :54.00                   Max.   :26400         
+ Red.Blood.Cell.Count Hypertension       Diabetes.Mellitus 
+ Min.   :2.100        Length:400         Length:400        
+ 1st Qu.:3.900        Class :character   Class :character  
+ Median :4.700        Mode  :character   Mode  :character  
+ Mean   :4.709                                             
+ 3rd Qu.:5.400                                             
+ Max.   :8.000                                             
+ Coronary.Artery.Disease   Appetite         Pedal.Edema..swelling.of.legs.
+ Length:400              Length:400         Length:400                    
+ Class :character        Class :character   Class :character              
+ Mode  :character        Mode  :character   Mode  :character              
+                                                                          
+                                                                          
+                                                                          
+    Anemia          Diagnosis.label   
+ Length:400         Length:400        
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#colSums(is.na(df))</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Age.of.the.patient Blood.Pressure Specific.Gravity..urine. Albumin.in.urine
+2                 48             80                    1.020                1
+3                  7             50                    1.020                4
+4                 62             80                    1.010                2
+5                 48             70                    1.005                4
+6                 51             80                    1.010                2
+7                 60             90                    1.015                3
+  Sugar.in.urine Red.Blood.Cells.in.urine Pus.Cells.in.urine Pus.Cell.Clumps
+2              0                                      normal      notpresent
+3              0                                      normal      notpresent
+4              3                   normal             normal      notpresent
+5              0                   normal           abnormal         present
+6              0                   normal             normal      notpresent
+7              0                                                  notpresent
+  Bacteria.in.urine Blood.Glucose.Random Blood.Urea Serum.Creatinine
+2        notpresent                  121         36              1.2
+3        notpresent                  230         18              0.8
+4        notpresent                  423         53              1.8
+5        notpresent                  117         56              3.8
+6        notpresent                  106         26              1.4
+7        notpresent                   74         25              1.1
+  Sodium.in.blood Potassium.in.blood Hemoglobin.level
+2             144                5.0             15.4
+3             140                3.5             11.3
+4             140                4.0              9.6
+5             111                2.5             11.2
+6             147                4.1             11.6
+7             142                3.2             12.2
+  Packed.Cell.Volume..Hematocrit. White.Blood.Cell.Count Red.Blood.Cell.Count
+2                              44                   7800                  5.2
+3                              38                   6000                  5.8
+4                              31                   7500                  3.7
+5                              32                   6700                  3.9
+6                              35                   7300                  4.6
+7                              39                   7800                  4.4
+  Hypertension Diabetes.Mellitus Coronary.Artery.Disease Appetite
+2          yes               yes                      no     good
+3           no                no                      no     good
+4           no               yes                      no     poor
+5          yes                no                      no     poor
+6           no                no                      no     good
+7          yes               yes                      no     good
+  Pedal.Edema..swelling.of.legs. Anemia Diagnosis.label
+2                             no     no             ckd
+3                             no     no             ckd
+4                             no    yes             ckd
+5                            yes    yes             ckd
+6                             no     no             ckd
+7                            yes     no             ckd</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-subset(df,select = -Patient.ID)</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>cat_cols <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(cat_cols, <span class="st">"Patient.ID"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform label encoding for categorical variables</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Hypertension <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Hypertension))</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Diabetes.Mellitus <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Diabetes.Mellitus))</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Coronary.Artery.Disease <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Coronary.Artery.Disease))</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Appetite <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Appetite))</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Pedal.Edema..swelling.of.legs. <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Pedal.Edema..swelling.of.legs.))</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Anemia <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Anemia))</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Red.Blood.Cells.in.urine <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Red.Blood.Cells.in.urine))</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Albumin.in.urine <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Albumin.in.urine))</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Sugar.in.urine <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Sugar.in.urine))</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Pus.Cells.in.urine <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Pus.Cells.in.urine))</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Pus.Cell.Clumps <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Pus.Cell.Clumps))</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Bacteria.in.urine <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span>Bacteria.in.urine))</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span> Diagnosis.label <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(df<span class="sc">$</span> Diagnosis.label))</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>cat_cols</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Albumin.in.urine"               "Sugar.in.urine"                
+ [3] "Red.Blood.Cells.in.urine"       "Pus.Cells.in.urine"            
+ [5] "Pus.Cell.Clumps"                "Bacteria.in.urine"             
+ [7] "Hypertension"                   "Diabetes.Mellitus"             
+ [9] "Coronary.Artery.Disease"        "Appetite"                      
+[11] "Pedal.Edema..swelling.of.legs." "Anemia"                        
+[13] "Diagnosis.label"               </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#str(df)</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(df, is.numeric)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Age.of.the.patient                  Blood.Pressure 
+                           TRUE                            TRUE 
+       Specific.Gravity..urine.                Albumin.in.urine 
+                           TRUE                            TRUE 
+                 Sugar.in.urine        Red.Blood.Cells.in.urine 
+                           TRUE                            TRUE 
+             Pus.Cells.in.urine                 Pus.Cell.Clumps 
+                           TRUE                            TRUE 
+              Bacteria.in.urine            Blood.Glucose.Random 
+                           TRUE                            TRUE 
+                     Blood.Urea                Serum.Creatinine 
+                           TRUE                            TRUE 
+                Sodium.in.blood              Potassium.in.blood 
+                           TRUE                            TRUE 
+               Hemoglobin.level Packed.Cell.Volume..Hematocrit. 
+                           TRUE                            TRUE 
+         White.Blood.Cell.Count            Red.Blood.Cell.Count 
+                           TRUE                            TRUE 
+                   Hypertension               Diabetes.Mellitus 
+                           TRUE                            TRUE 
+        Coronary.Artery.Disease                        Appetite 
+                           TRUE                            TRUE 
+ Pedal.Edema..swelling.of.legs.                          Anemia 
+                           TRUE                            TRUE 
+                Diagnosis.label 
+                           TRUE </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>index <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(df<span class="sc">$</span> Diagnosis.label, <span class="at">p =</span> <span class="fl">0.8</span>, <span class="at">list =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> df[index, ]</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> df[<span class="sc">-</span>index, ]</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Convert tags to binary; machine learning models typically require binary tags.</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>train_data<span class="sc">$</span> Diagnosis.label <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(train_data<span class="sc">$</span> Diagnosis.label <span class="sc">==</span> <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>test_data<span class="sc">$</span> Diagnosis.label <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(test_data<span class="sc">$</span> Diagnosis.label <span class="sc">==</span> <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">#split X / y</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>X_train <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(train_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(train_data) <span class="sc">==</span> <span class="st">"Diagnosis.label"</span>)])</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>X_test  <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(test_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(test_data) <span class="sc">==</span> <span class="st">"Diagnosis.label"</span>)])</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> train_data<span class="sc">$</span> Diagnosis.label</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>y_test  <span class="ot">&lt;-</span> test_data<span class="sc">$</span> Diagnosis.label</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co">#summary(train_data)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="glm-modeling" class="level3">
+<h3 class="anchored" data-anchor-id="glm-modeling">GLM Modeling</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>log_model <span class="ot">&lt;-</span> <span class="fu">glm</span>( Diagnosis.label <span class="sc">~</span> ., <span class="at">data =</span> train_data, <span class="at">family =</span> binomial)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>y_pred_prob <span class="ot">&lt;-</span> <span class="fu">predict</span>(log_model, test_data, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>y_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(y_pred_prob <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>acc <span class="ot">&lt;-</span> <span class="fu">mean</span>(y_pred <span class="sc">==</span> test_data<span class="sc">$</span> Diagnosis.label)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(acc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+<p>CKD data is typical: indicators like urine protein (albumin-in-urine), urine glucose, and pus cells in urine, once they reach a certain level, almost always indicate CKD; while normal levels almost never indicate CKD. This is the worst-case scenario for logistic regression: one or two variables that can almost separate 0 and 1.</p>
+<p>The simplest approach to this type of problem is to use glmnet, not the bare glm(). This is because the penalty term prevents the coefficients from going to infinity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#make matrix</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>x_train <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(Diagnosis.label <span class="sc">~</span> ., <span class="at">data =</span> train_data)[, <span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> train_data<span class="sc">$</span>Diagnosis.label</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(x_train, y_train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co">#predict</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>x_test <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(Diagnosis.label <span class="sc">~</span> ., <span class="at">data =</span> test_data)[, <span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>y_pred_prob <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">newx =</span> x_test, <span class="at">s =</span> <span class="fl">0.01</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>y_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(y_pred_prob <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(y_pred <span class="sc">==</span> test_data<span class="sc">$</span>Diagnosis.label)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="at">xvar =</span> <span class="st">"lambda"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rcode_files/figure-html/glmnet-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>About glm choosing lambda.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">50</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>cvfit <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(x_train, y_train, <span class="at">family =</span> <span class="st">"binomial"</span>, <span class="at">alpha =</span> <span class="dv">1</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cvfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rcode_files/figure-html/glmnet_2-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>cvfit<span class="sc">$</span>lambda.min   <span class="co">#best λ</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0002530825</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>cvfit<span class="sc">$</span>lambda<span class="fl">.1</span>se   <span class="co">#stable λ</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.004526759</code></pre>
+</div>
+</div>
+<p>left → lambda.min（λ with the smallest error） right → lambda.1se（easiest and stable λ）</p>
+</section>
+</section>
+<section id="linear-regression" class="level2">
+<h2 class="anchored" data-anchor-id="linear-regression">Linear regression</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> df</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>cat_cols</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Albumin.in.urine"               "Sugar.in.urine"                
+ [3] "Red.Blood.Cells.in.urine"       "Pus.Cells.in.urine"            
+ [5] "Pus.Cell.Clumps"                "Bacteria.in.urine"             
+ [7] "Hypertension"                   "Diabetes.Mellitus"             
+ [9] "Coronary.Artery.Disease"        "Appetite"                      
+[11] "Pedal.Edema..swelling.of.legs." "Anemia"                        
+[13] "Diagnosis.label"               </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">#split(num_cols,f = ",",sep = "+")</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co">#find names</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(cat_cols, <span class="at">collapse =</span> <span class="st">"+"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Albumin.in.urine+Sugar.in.urine+Red.Blood.Cells.in.urine+Pus.Cells.in.urine+Pus.Cell.Clumps+Bacteria.in.urine+Hypertension+Diabetes.Mellitus+Coronary.Artery.Disease+Appetite+Pedal.Edema..swelling.of.legs.+Anemia+Diagnosis.label"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#independent variables</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>lm_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(Diagnosis.label <span class="sc">~</span>  Hemoglobin.level<span class="sc">+</span>Albumin.in.urine<span class="sc">+</span>Sugar.in.urine<span class="sc">+</span>Red.Blood.Cells.in.urine<span class="sc">+</span>Pus.Cells.in.urine<span class="sc">+</span>Pus.Cell.Clumps<span class="sc">+</span>Bacteria.in.urine<span class="sc">+</span>Hypertension<span class="sc">+</span>Diabetes.Mellitus<span class="sc">+</span>Coronary.Artery.Disease<span class="sc">+</span>Appetite<span class="sc">+</span>Pedal.Edema..swelling.of.legs.<span class="sc">+</span>Anemia<span class="sc">+</span>Serum.Creatinine,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>             </span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> dat)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Diagnosis.label ~ Hemoglobin.level + Albumin.in.urine + 
+    Sugar.in.urine + Red.Blood.Cells.in.urine + Pus.Cells.in.urine + 
+    Pus.Cell.Clumps + Bacteria.in.urine + Hypertension + Diabetes.Mellitus + 
+    Coronary.Artery.Disease + Appetite + Pedal.Edema..swelling.of.legs. + 
+    Anemia + Serum.Creatinine, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.72222 -0.14429  0.02754  0.13604  0.70115 
+
+Coefficients:
+                                Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                     1.161819   0.234891   4.946 1.13e-06 ***
+Hemoglobin.level                0.045430   0.005536   8.206 3.48e-15 ***
+Albumin.in.urine               -0.100269   0.010891  -9.207  &lt; 2e-16 ***
+Sugar.in.urine                 -0.021568   0.011912  -1.811  0.07098 .  
+Red.Blood.Cells.in.urine        0.245296   0.014398  17.037  &lt; 2e-16 ***
+Pus.Cells.in.urine              0.037811   0.018470   2.047  0.04132 *  
+Pus.Cell.Clumps                -0.049330   0.041120  -1.200  0.23101    
+Bacteria.in.urine              -0.042472   0.051083  -0.831  0.40625    
+Hypertension                   -0.089461   0.033887  -2.640  0.00863 ** 
+Diabetes.Mellitus              -0.071411   0.031744  -2.250  0.02504 *  
+Coronary.Artery.Disease         0.069109   0.043929   1.573  0.11650    
+Appetite                       -0.062216   0.032872  -1.893  0.05915 .  
+Pedal.Edema..swelling.of.legs. -0.013195   0.034795  -0.379  0.70474    
+Anemia                          0.016579   0.037287   0.445  0.65684    
+Serum.Creatinine               -0.004483   0.002192  -2.045  0.04156 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2278 on 385 degrees of freedom
+Multiple R-squared:  0.787, Adjusted R-squared:  0.7792 
+F-statistic: 101.6 on 14 and 385 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">vif</span>(lm_fit)<span class="co">#whether there is a multicollinearity</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              Hemoglobin.level               Albumin.in.urine 
+                      2.088912                       1.855492 
+                Sugar.in.urine       Red.Blood.Cells.in.urine 
+                      1.403951                       1.386586 
+            Pus.Cells.in.urine                Pus.Cell.Clumps 
+                      1.511873                       1.381603 
+             Bacteria.in.urine                   Hypertension 
+                      1.267104                       2.134647 
+             Diabetes.Mellitus        Coronary.Artery.Disease 
+                      1.983162                       1.243940 
+                      Appetite Pedal.Edema..swelling.of.legs. 
+                      1.387175                       1.468771 
+                        Anemia               Serum.Creatinine 
+                      1.401583                       1.193711 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">#VIF &gt; 10: Severe collinearity;</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="co">#5 &lt; VIF ≤ 10: Moderate;</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="co">#VIF &lt; 5: Acceptable.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>)) </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm_fit)              </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rcode_files/figure-html/lm_pic-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>diag_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">fitted =</span> <span class="fu">fitted</span>(lm_fit),</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">resid  =</span> <span class="fu">resid</span>(lm_fit),</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">std_resid =</span> <span class="fu">rstandard</span>(lm_fit)</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="co">#1) Residuals vs Fitted</span></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diag_df, <span class="fu">aes</span>(<span class="at">x =</span> fitted, <span class="at">y =</span> resid)) <span class="sc">+</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Residuals vs Fitted"</span>,</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Fitted values"</span>,</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Residuals"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rcode_files/figure-html/lm_pic2-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">#2) QQ Plot</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diag_df, <span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>() <span class="sc">+</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>() <span class="sc">+</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Normal Q-Q Plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rcode_files/figure-html/lm_pic2-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">#3) Scale-Location (sqrt |resid|)</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diag_df, <span class="fu">aes</span>(<span class="at">x =</span> fitted, <span class="at">y =</span> <span class="fu">sqrt</span>(<span class="fu">abs</span>(std_resid)))) <span class="sc">+</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Scale-Location"</span>,</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Fitted values"</span>,</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Sqrt(|Standardized residuals|)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rcode_files/figure-html/lm_pic2-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm_fit, <span class="at">which =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rcode_files/figure-html/lm_pic2-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

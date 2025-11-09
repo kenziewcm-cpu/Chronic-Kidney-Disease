@@ -2,10 +2,14 @@ Research Questions/Study Objectives:
 
 This project aims to explore clinical and laboratory features associated with chronic kidney disease (CKD) and to identify key predictors that distinguish CKD from non-CKD individuals.
 Specifically, we will address the following research questions:
+
 1.Which clinical and biochemical indicators are significantly associated with CKD status?
+
 2.How do comorbid conditions such as diabetes mellitus and hypertension influence the likelihood of CKD?
+
 3.How does CKD risk differ across subgroups such as diabetic vs. non-diabetic individuals?
 This analysis will use inferential statistics including hypothesis testing, contingency tables, Chi-square test, Fisher’s exact test, relative risk (RR), and odds ratio (OR).
+
 4.Can we develop an interpretable statistical model to predict CKD status based on patient-level biomarkers?
 
 Background and Rationale

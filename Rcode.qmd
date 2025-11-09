@@ -1,0 +1,372 @@
+---
+title: "chronic kidney disease"
+author: "Kenzie_lee"
+format: html
+editor: visual
+---
+
+
+## data preparation
+
+```{r library,warning=FALSE,message=FALSE}
+library(caret)
+library(ggplot2)
+library(corrplot)
+library(dplyr)
+library(reshape2)
+```
+
+```{r read,warning=FALSE,message=FALSE}
+
+file_path <- '/Users/apple/Desktop/me/WCM/semester/fall1/biosta1/final/kidney_disease.csv'
+df <- read.csv(file_path)
+#str(df)
+head(df)
+```
+
+First check duplicated rows.
+
+```{r data_prep_1,warning=FALSE,message=FALSE}
+#check duplicated rows
+sum(duplicated(df))
+#df[duplicated(df),]
+```
+
+Delete extra columns, such as the ID column. 
+Classify the numerical and categorical data.
+
+```{r data_prep_2,warning=FALSE,message=FALSE}
+
+df <- subset(df, select = -Patient.ID)#please run this for one first time
+#df <- df[, !names(df) %in% c("id")]
+#str(df)
+#colnames(df)
+
+#name the numerical and categorical data
+num_cols <- c(
+  "Age.of.the.patient",
+  "Blood.Pressure",
+  "Specific.Gravity..urine.",
+  "Blood.Glucose.Random",
+  "Blood.Urea",
+  "Serum.Creatinine",
+  "Sodium.in.blood",
+  "Potassium.in.blood",
+  "Hemoglobin.level",
+  "Packed.Cell.Volume..Hematocrit.",
+  "White.Blood.Cell.Count",
+  "Red.Blood.Cell.Count"
+)
+
+df[num_cols] <- lapply(df[num_cols], function(x) as.numeric(x))
+
+
+str(df)
+cat_cols <- names(df)[sapply(df, is.character) | sapply(df, is.factor)]
+#num_col <- names(df)[!(sapply(df, is.character) | sapply(df, is.factor))]
+#
+cat_cols
+#num_col
+
+#summary(df)
+```
+
+Deal with "tab".
+
+```{r data_prep_3,warning=FALSE,message=FALSE}
+df <- df[-1,]
+#delete the first row:	df <- df[-1, ]
+#delete the first two rows:	df <- df[-c(1,2), ]
+#delete the i th row: 	df <- df[-i, ]
+#remain 2 to all rows	df <- df[2:nrow(df), ]
+#head(df)
+
+df$`Diabetes.Mellitus` <- gsub("\\\tno", "no", df$`Diabetes.Mellitus`)
+df$`Diabetes.Mellitus` <- gsub("\\\tyes", "yes", df$`Diabetes.Mellitus`)
+
+df$`Coronary.Artery.Disease` <- gsub("\\\tno", "no", df$`Coronary.Artery.Disease`)
+df$`Coronary.Artery.Disease` <- gsub("\\\tyes", "yes", df$`Coronary.Artery.Disease`)
+
+df$Diagnosis.label  <- gsub("ckd\\\t", "ckd", df$Diagnosis.label )
+#summary(df)
+```
+
+Deal with NAs.
+
+```{r data_prep_4,warning=FALSE,message=FALSE}
+
+colSums(is.na(df))
+```
+
+Missing value imputation methods:
+
+1. For numerical variables (e.g., age, blood pressure, blood sugar): Randomly select some values from the known non-missing values of the column and replace the missing values. • If the mean or median is used for imputation, all missing values will be replaced with the same number, which will reduce the variance of the variable and cause the data to be "oversmoothed". Random imputation allows the imputed values to maintain the true distribution characteristics of the data (e.g., the probability that people with high blood sugar will take higher values and people with low blood sugar will take lower values is still preserved). After this processing, the model training will not lose information diversity due to a large number of identical values.
+
+2. For categorical variables: We replace missing values with the value that appears most frequently (mode). These variables have no continuous relationship (they cannot be averaged or randomly selected), and mode imputation is the most natural choice because it preserves the main distribution of the data; it does not introduce invalid categories; and it has the least impact on model bias.
+
+```{r data_prep_5,warning=FALSE,message=FALSE}
+#random -- NA--numeric
+Random_value_Imputation <- function(x, seed=42) {
+  set.seed(seed)
+  na_index <- is.na(x)
+  x[na_index] <- sample(x[!na_index], sum(na_index), replace=TRUE)
+  return(x)
+}# "Albumin.in.urine"                "Sugar.in.urine" 
+
+#mode -- NA--cate
+impute_mode <- function(x, seed=42) {
+  set.seed(seed)
+  mode_val <- names(sort(table(x), decreasing = TRUE))[1]
+  x[is.na(x)] <- mode_val
+  return(x)
+}
+
+#num_cols
+#cat_cols
+for (col in num_cols) {
+  df[[col]] <- Random_value_Imputation(df[[col]], seed=203)
+}
+for (col in cat_cols) {
+  df[[col]] <- impute_mode(df[[col]], seed=203)
+}
+```
+
+#### Draw a heatmap.
+
+Drawing a correlation plot is essential:
+If a high correlation is found (|r| > 0.8), it is recommended to remove one of the variables;
+If there are many variables, run vif() first and then delete them;
+Variable selection is best done after cleaning and before modeling;
+If you want to predict (rather than explain), you can use penalized regression for automatic selection.
+
+```{r message=FALSE, warning=FALSE}
+
+num_data <- df[, num_cols]
+
+#make sure it's all numeric
+num_data <- mutate_all(num_data, function(x) as.numeric(as.character(x)))
+
+#complete.obs omits NA
+corr_matrix <- cor(num_data, use = "complete.obs")
+#turn it into matrix
+corr_melt <- melt(corr_matrix)
+
+ggplot(corr_melt, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "#2E86AB", mid = "white", high = "#E74C3C",
+                       midpoint = 0, limit = c(-1, 1), name = "Correlation") +
+  theme_minimal(base_size = 13) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        panel.grid = element_blank(),
+        axis.title = element_blank()) +
+  coord_fixed() +
+  geom_text(aes(label = sprintf("%.2f", value)), size = 1.5, color = "black") +
+  labs(title = "Correlation Heatmap of Numeric Variables")
+```
+
+
+```{r}
+summary(df)
+
+#colSums(is.na(df))
+head(df)
+df<-subset(df,select = -Patient.ID)
+cat_cols <- setdiff(cat_cols, "Patient.ID")
+
+
+# Perform label encoding for categorical variables
+df$Hypertension <- as.integer(factor(df$Hypertension))
+df$Diabetes.Mellitus <- as.integer(factor(df$Diabetes.Mellitus))
+df$Coronary.Artery.Disease <- as.integer(factor(df$Coronary.Artery.Disease))
+df$Appetite <- as.integer(factor(df$Appetite))
+df$Pedal.Edema..swelling.of.legs. <- as.integer(factor(df$Pedal.Edema..swelling.of.legs.))
+df$Anemia <- as.integer(factor(df$Anemia))
+df$Red.Blood.Cells.in.urine <- as.integer(factor(df$Red.Blood.Cells.in.urine))
+df$Albumin.in.urine <- as.integer(factor(df$Albumin.in.urine))
+df$Sugar.in.urine <- as.integer(factor(df$Sugar.in.urine))
+df$Pus.Cells.in.urine <- as.integer(factor(df$Pus.Cells.in.urine))
+df$Pus.Cell.Clumps <- as.integer(factor(df$Pus.Cell.Clumps))
+df$Bacteria.in.urine <- as.integer(factor(df$Bacteria.in.urine))
+
+#df$packed_cell_volume <- as.integer(factor(df$packed_cell_volume))
+#df$white_blood_cell_count <- as.integer(factor(df$white_blood_cell_count))
+
+#df$red_blood_cell_count <- as.integer(factor(df$red_blood_cell_count))
+df$ Diagnosis.label <- as.integer(factor(df$ Diagnosis.label))
+cat_cols
+
+str(df)
+```
+
+```{r}
+sapply(df, is.numeric)
+
+
+
+```
+
+```{r}
+
+#install.packages("caret")
+library(caret)
+index <- createDataPartition(df$ Diagnosis.label, p = 0.8, list = FALSE)
+train_data <- df[index, ]
+test_data <- df[-index, ]
+
+#转换标签为二进制，机器学习模型通常要求二进制标签
+train_data$ Diagnosis.label <- ifelse(train_data$ Diagnosis.label == 2, 1, 0)
+test_data$ Diagnosis.label <- ifelse(test_data$ Diagnosis.label == 2, 1, 0)
+
+#拆分 X / y
+X_train <- as.matrix(train_data[, -which(names(train_data) == "Diagnosis.label")])
+X_test  <- as.matrix(test_data[, -which(names(test_data) == "Diagnosis.label")])
+y_train <- train_data$ Diagnosis.label
+y_test  <- test_data$ Diagnosis.label
+
+summary(train_data)
+
+```
+
+```{r}
+
+log_model <- glm( Diagnosis.label ~ ., data = train_data, family = binomial)
+
+y_pred_prob <- predict(log_model, test_data, type = "response")
+
+y_pred <- ifelse(y_pred_prob > 0.5, 1, 0)
+
+acc <- mean(y_pred == test_data$ Diagnosis.label)
+
+print(acc)
+```
+
+CKD 这种数据很典型：比如尿蛋白（Albumin.in.urine）、尿糖、尿中脓细胞这种指标，一旦到了某个等级，几乎都是 CKD；而正常的几乎都不是。这就是逻辑回归最怕的情况：有一两个变量几乎能把 0 和 1 分开。
+
+这类问题最干脆的做法其实是：用 glmnet，不要用裸的 glm()。因为惩罚项能阻止系数往无穷大跑。
+
+```{r}
+library(glmnet)
+
+# 把公式数据变成矩阵
+x_train <- model.matrix(Diagnosis.label ~ ., data = train_data)[, -1]
+y_train <- train_data$Diagnosis.label
+
+fit <- glmnet(x_train, y_train, family = "binomial")
+
+# 预测
+x_test <- model.matrix(Diagnosis.label ~ ., data = test_data)[, -1]
+y_pred_prob <- predict(fit, newx = x_test, s = 0.01, type = "response")
+y_pred <- ifelse(y_pred_prob > 0.5, 1, 0)
+mean(y_pred == test_data$Diagnosis.label)
+
+
+```
+
+```{r}
+
+library(glmnet)
+
+# 拟合模型（假设你已经准备好 x_train, y_train）
+fit <- glmnet(x_train, y_train, family = "binomial", alpha = 1)
+
+# 画图
+plot(fit, xvar = "lambda", label = TRUE)
+
+
+```
+
+```{r}
+set.seed(123)
+cvfit <- cv.glmnet(x_train, y_train, family = "binomial", alpha = 1)
+
+plot(cvfit)
+cvfit$lambda.min   # 最优 λ
+cvfit$lambda.1se   # 稳健 λ
+
+```
+
+#左边的 → lambda.min（误差最小的 λ）
+
+#右边的 → lambda.1se（最简单但仍然不错的 λ）
+
+```{r}
+
+library(pROC)
+
+# 预测概率
+y_pred_prob <- predict(cvfit, newx = x_test, s = "lambda.min", type = "response")
+
+# 画 ROC
+roc_obj <- roc(y_test, as.vector(y_pred_prob))
+plot(roc_obj, col = "blue", main = "ROC Curve for Penalized Logistic Regression")
+auc(roc_obj)
+
+```
+
+## LR
+
+```{r}
+dat <- df
+cat_cols
+#split(num_cols,f = ",",sep = "+")
+
+# 2. 拟合线性回归模型
+paste(cat_cols, collapse = "+")
+
+#    这里用是数值的变量做自变量
+lm_fit <- lm(Diagnosis.label ~  Hemoglobin.level+Albumin.in.urine+Sugar.in.urine+Red.Blood.Cells.in.urine+Pus.Cells.in.urine+Pus.Cell.Clumps+Bacteria.in.urine+Hypertension+Diabetes.Mellitus+Coronary.Artery.Disease+Appetite+Pedal.Edema..swelling.of.legs.+Anemia+Serum.Creatinine,
+             
+             data = dat)
+
+# 3. 看结果
+summary(lm_fit)
+car::vif(lm_fit)#没有多重共线性
+#VIF > 10：严重共线；
+#
+#5 < VIF ≤ 10：中度；
+#
+#VIF < 5：可接受。
+```
+
+```{r}
+par(mfrow = c(2, 2))      # 2x2 排版
+plot(lm_fit)              # 一次性画四张诊断图
+par(mfrow = c(1, 1)) 
+
+
+```
+
+这样就有了最标准的"报告型"图。 **ggplot2** 画得好看一点（任选其一）：
+
+```{r message=FALSE, warning=FALSE}
+
+diag_df <- data.frame(
+  fitted = fitted(lm_fit),
+  resid  = resid(lm_fit),
+  std_resid = rstandard(lm_fit)
+)
+
+#1) Residuals vs Fitted
+ggplot(diag_df, aes(x = fitted, y = resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Residuals vs Fitted",
+       x = "Fitted values",
+       y = "Residuals")
+
+#2) QQ Plot
+ggplot(diag_df, aes(sample = resid)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Normal Q-Q Plot")
+
+#3) Scale-Location (sqrt |resid|)
+ggplot(diag_df, aes(x = fitted, y = sqrt(abs(std_resid)))) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(title = "Scale-Location",
+       x = "Fitted values",
+       y = "Sqrt(|Standardized residuals|)")
+
+plot(lm_fit, which = 5)
+```

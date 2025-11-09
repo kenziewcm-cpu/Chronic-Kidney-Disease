@@ -167,7 +167,6 @@ ggplot(corr_melt, aes(x = Var1, y = Var2, fill = value)) +
 
 ```{r}
 summary(df)
-
 #colSums(is.na(df))
 head(df)
 df<-subset(df,select = -Patient.ID)
